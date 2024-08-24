@@ -1,4 +1,6 @@
-import API.python.tracker_sample as tracker_sample  # Now you can import it
+import sys
+import os
+import API.python.tracker_sample as tracker_sample
 
 tracker = tracker_sample.TrackerClient()
 
@@ -8,7 +10,7 @@ def initialize_tracker():
 def start_tracker():
     try:
         tracker.start()
-        print("Tracking started successfully")
+        print("Tracking started")
     except Exception as e:
         print(f"Failed to start tracking: {e}")
 

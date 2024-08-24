@@ -1,5 +1,3 @@
-import sys
-import os
 import API.python.tracker_sample as tracker_sample
 
 tracker = tracker_sample.TrackerClient()

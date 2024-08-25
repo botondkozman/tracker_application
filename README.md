@@ -9,3 +9,17 @@
  - Python 3.6;
  - NumPy;
  - adding <YOUR_BEAM_SDK_INSTALLATION_FOLDER>/API/python to your PYTHONPATH.
+
+ ## Activate virtual environment
+ Run the following command:
+ ``` sh
+venv_py36\Scripts\activate
+ ```
+ With the virtual machine activated, install necessary dependencies:
+ ``` sh
+ pip install -r requirements.txt
+ ```
+ If you would like to deactive the virtual environment:
+ ``` sh
+ deactivate
+ ```

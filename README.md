@@ -10,10 +10,13 @@
  - NumPy;
  - adding <YOUR_BEAM_SDK_INSTALLATION_FOLDER>/API/python to your PYTHONPATH.
 
+ ## Download python 3.6
+ Please download python 3.6.8 from the following link: https://www.python.org/downloads/release/python-368/, and add to the python3.6 folder.
+
  ## Activate virtual environment
  Run the following command:
  ``` sh
-python3.6 -m venv venv_py36
+python -m venv venv_py36
 venv_py36\Scripts\activate
  ```
  With the virtual machine activated, install necessary dependencies:

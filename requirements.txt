@@ -1,5 +1,2 @@
 numpy
-time
-glob
-os
 pillow

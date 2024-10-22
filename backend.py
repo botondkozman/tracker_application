@@ -1,29 +1,56 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-cred = firebase_admin.credentials.Certificate("./credential/odin-demo-2c3f0-firebase-adminsdk-dbjmc-732853d4fe.json")
+class Database:
+    def __init__(self, credential_path):
+        
+        try:
+            cred = credentials.Certificate(credential_path)
+            firebase_admin.initialize_app(cred)
+            self.db = firestore.client()
+            print("Firebase connection established.")
+        except Exception as e:
+            print(f"Failed to initialize Firebase: {e}")
+            raise
 
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+    def add_data(self, collection_name, document_id, data):
+        
+        try:
+            doc_ref = self.db.collection(collection_name).document(document_id)
+            doc_ref.set(data)
+            print(f"Document {document_id} added to {collection_name}.")
+        except Exception as e:
+            print(f"Failed to add data: {e}")
 
-def add_data(collection, document, field):
-    doc_ref = db.collection(collection).document(document)
-    doc_ref.set(field)
+    def get_data(self, collection_name, document_id):
+        
+        try:
+            doc_ref = self.db.collection(collection_name).document(document_id)
+            doc = doc_ref.get()
+            if doc.exists:
+                print(f"Document {document_id} data: {doc.to_dict()}")
+                return doc.to_dict()
+            else:
+                print(f"No document found with ID: {document_id}")
+                return None
+        except Exception as e:
+            print(f"Failed to get data: {e}")
+            return None
+        
+    def get_data(self, collection_name):
+        
+        doc_ref = self.db.collection(collection_name)
+        doc = doc_ref.get()
+        if doc.exists:
+            print(f"Document data: {doc.to_dict()}")
+            return doc.to_dict()
+            
 
-def get_data(collection):
-    users_ref = db.collection(collection)
-    docs = users_ref.stream()
-
-    for doc in docs:
-        print(f'{doc.id} => {doc.to_dict()}')
-
-if __name__ == "__main__":
-    test = {
-        "name": "John Doe",
-        "email": "johndoe@example.com",
-        "age": 30,
-        "rate": 5,
-        "list": [1, 2, 3, 4]
-    }
-    add_data("data", "user2", test)
-    get_data("data")
+    def update_data(self, collection_name, document_id, new_data):
+        
+        try:
+            doc_ref = self.db.collection(collection_name).document(document_id)
+            doc_ref.update(new_data)
+            print(f"Document {document_id} updated.")
+        except Exception as e:
+            print(f"Failed to update data: {e}")

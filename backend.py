@@ -37,7 +37,7 @@ class Database:
             print(f"Failed to get data: {e}")
             return None
         
-    def get_data(self, collection_name):
+    def get_dataCollection(self, collection_name):
         
         doc_ref = self.db.collection(collection_name)
         doc = doc_ref.get()

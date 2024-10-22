@@ -37,14 +37,21 @@ class Database:
             print(f"Failed to get data: {e}")
             return None
         
-    def get_dataCollection(self, collection_name):
-        
-        doc_ref = self.db.collection(collection_name)
-        doc = doc_ref.get()
-        if doc.exists:
-            print(f"Document data: {doc.to_dict()}")
-            return doc.to_dict()
-            
+    def get_data_collection(self, collection_name):
+
+        try:
+            collection_ref = self.db.collection(collection_name)
+            docs = collection_ref.stream()
+            collection_data = []
+            for doc in docs:
+                data = doc.to_dict()  
+                collection_data.append(data)
+                print(f"Document ID: {doc.id}")
+            return collection_data
+        except Exception as e:
+            print(f"Failed to get collection data: {e}")
+            return None
+
 
     def update_data(self, collection_name, document_id, new_data):
         

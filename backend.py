@@ -28,7 +28,7 @@ class Database:
             doc_ref = self.db.collection(collection_name).document(document_id)
             doc = doc_ref.get()
             if doc.exists:
-                print(f"Document {document_id} data: {doc.to_dict()}")
+                print(f"Document {document_id} data extracted")
                 return doc.to_dict()
             else:
                 print(f"No document found with ID: {document_id}")

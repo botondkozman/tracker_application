@@ -1,3 +1,4 @@
+import dis
 import math
 import os
 import unittest
@@ -6,7 +7,7 @@ import _ast
 import tempfile
 import types
 from test import support
-from test.support import script_helper
+from test.support import script_helper, FakePath
 
 class TestSpecifics(unittest.TestCase):
 
@@ -35,6 +36,7 @@ class TestSpecifics(unittest.TestCase):
         import builtins
         prev = builtins.__debug__
         setattr(builtins, '__debug__', 'sure')
+        self.assertEqual(__debug__, prev)
         setattr(builtins, '__debug__', prev)
 
     def test_argument_handling(self):
@@ -284,7 +286,7 @@ if 1:
             'from sys import stdin)',
             'from sys import stdin, stdout,\nstderr',
             'from sys import stdin si',
-            'from sys import stdin,'
+            'from sys import stdin,',
             'from sys import (*)',
             'from sys import (stdin,, stdout, stderr)',
             'from sys import (stdin, stdout),',
@@ -627,6 +629,24 @@ if 1:
         self.check_constant(f1, frozenset({0}))
         self.assertTrue(f1(0))
 
+    # This is a regression test for a CPython specific peephole optimizer
+    # implementation bug present in a few releases.  It's assertion verifies
+    # that peephole optimization was actually done though that isn't an
+    # indication of the bugs presence or not (crashing is).
+    @support.cpython_only
+    def test_peephole_opt_unreachable_code_array_access_in_bounds(self):
+        """Regression test for issue35193 when run under clang msan."""
+        def unused_code_at_end():
+            return 3
+            raise RuntimeError("unreachable")
+        # The above function definition will trigger the out of bounds
+        # bug in the peephole optimizer as it scans opcodes past the
+        # RETURN_VALUE opcode.  This does not always crash an interpreter.
+        # When you build with the clang memory sanitizer it reliably aborts.
+        self.assertEqual(
+            'RETURN_VALUE',
+            list(dis.get_instructions(unused_code_at_end))[-1].opname)
+
     def test_dont_merge_constants(self):
         # Issue #25843: compile() must not merge constants which are equal
         # but have a different type.
@@ -637,6 +657,7 @@ if 1:
             f1 = ns['f1']
             f2 = ns['f2']
             self.assertIsNot(f1.__code__, f2.__code__)
+            self.assertNotEqual(f1.__code__, f2.__code__)
             self.check_constant(f1, const1)
             self.check_constant(f2, const2)
             self.assertEqual(repr(f1()), repr(const1))
@@ -645,6 +666,8 @@ if 1:
         check_different_constants(0, 0.0)
         check_different_constants(+0.0, -0.0)
         check_different_constants((0,), (0.0,))
+        check_different_constants('a', b'a')
+        check_different_constants(('a',), (b'a',))
 
         # check_different_constants() cannot be used because repr(-0j) is
         # '(-0-0j)', but when '(-0-0j)' is evaluated to 0j: we loose the sign.
@@ -666,13 +689,7 @@ if 1:
 
     def test_path_like_objects(self):
         # An implicit test for PyUnicode_FSDecoder().
-        class PathLike:
-            def __init__(self, path):
-                self._path = path
-            def __fspath__(self):
-                return self._path
-
-        compile("42", PathLike("test_compile_pathlike"), "single")
+        compile("42", FakePath("test_compile_pathlike"), "single")
 
 
 class TestStackSize(unittest.TestCase):

@@ -8,7 +8,7 @@ import asyncio
 import threading
 from backend import Database
 
-images_path = "../../../Downloads/parquet_images"
+images_path = "./parquet_images/parquet_images"
 images = None
 tracker = None
 close_event = None
@@ -48,7 +48,7 @@ def parse_folder():
 
 def write_database():
     global images_path, size, rating, elapsed_time, coordinates
-    field_pciture = {"path": images_path.split('/')[4] + '/' + name,
+    field_pciture = {"path": images_path.split('/')[-1] + '/' + name,
              "size": size}
     field_user = {name.split('.')[0] : {"picture": name.split('.')[0],
              "rating": rating,
@@ -64,7 +64,8 @@ def show_image_tk(image_path, close_event):
     root = tk.Tk()
     root.title("Images")
 
-    screen_width = root.winfo_screenwidth()
+    # screen_width = root.winfo_screenwidth()
+    screen_width = 1600
     screen_height = root.winfo_screenheight()
     root.geometry(f"{screen_width}x{screen_height}+0+0")
 

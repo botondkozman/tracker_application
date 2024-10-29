@@ -6,9 +6,10 @@ from PIL import Image, ImageTk
 import tkinter as tk
 import asyncio
 import threading
+import random
 from backend import Database
 
-images_path = "../../../Downloads/parquet_images"
+images_path = "./parquet_images"
 images = None
 tracker = None
 close_event = None
@@ -42,13 +43,13 @@ async def tracking_cursor_position():
 def parse_folder():
     global images
     images = glob.glob(os.path.join(images_path, '*.*'))
-
+    random.shuffle(images)
     if not images:
         print("The folder does not contains images")
 
 def write_database():
     global images_path, size, rating, elapsed_time, coordinates
-    field_pciture = {"path": images_path.split('/')[4] + '/' + name,
+    field_pciture = {"path": images_path.split('/')[-1] + '/' + name,
              "size": size}
     field_user = {name.split('.')[0] : {"picture": name.split('.')[0],
              "rating": rating,
@@ -57,14 +58,17 @@ def write_database():
     coordinates = []
     rating = -1
     db.add_data("picture", name.split('.')[0], field_pciture)
-    db.update_data("users", "user1", field_user)
+    if (db.has_document("users", "boti")):
+        db.update_data("users", "boti", field_user)
+    else:
+        db.add_data("users", "boti", field_user)
 
 def show_image_tk(image_path, close_event):
     global size, name
     root = tk.Tk()
     root.title("Images")
 
-    screen_width = root.winfo_screenwidth()
+    screen_width = min(root.winfo_screenwidth(), 1600)
     screen_height = root.winfo_screenheight()
     root.geometry(f"{screen_width}x{screen_height}+0+0")
 

@@ -6,9 +6,11 @@ from PIL import Image, ImageTk
 import tkinter as tk
 import asyncio
 import threading
+import random
 from backend import Database
 
-images_path = "../../../Downloads/parquet_images"
+username = "boti"
+images_path = "./parquet_images"
 images = None
 tracker = None
 close_event = None
@@ -35,20 +37,19 @@ async def tracking_cursor_position():
     global close_event, coordinates
     while not close_event.is_set():
         screen_gaze = tracker.get_screen_gaze_info()
-        print("Coordinates: <x=%d px, y=%d px>" % (screen_gaze.x, screen_gaze.y))
         coordinates.append({"coordinate":[screen_gaze.x, screen_gaze.y]})
         await asyncio.sleep(0.1)
 
 def parse_folder():
     global images
     images = glob.glob(os.path.join(images_path, '*.*'))
-
+    random.shuffle(images)
     if not images:
         print("The folder does not contains images")
 
 def write_database():
-    global images_path, size, rating, elapsed_time, coordinates
-    field_pciture = {"path": images_path.split('/')[4] + '/' + name,
+    global images_path, size, rating, elapsed_time, coordinates, username
+    field_pciture = {"path": images_path.split('/')[-1] + '/' + name,
              "size": size}
     field_user = {name.split('.')[0] : {"picture": name.split('.')[0],
              "rating": rating,
@@ -57,14 +58,17 @@ def write_database():
     coordinates = []
     rating = -1
     db.add_data("picture", name.split('.')[0], field_pciture)
-    db.update_data("users", "user1", field_user)
+    if (db.has_document("users", username)):
+        db.update_data("users", username, field_user)
+    else:
+        db.add_data("users", username, field_user)
 
 def show_image_tk(image_path, close_event):
     global size, name
     root = tk.Tk()
     root.title("Images")
 
-    screen_width = root.winfo_screenwidth()
+    screen_width = min(root.winfo_screenwidth(), 1600)
     screen_height = root.winfo_screenheight()
     root.geometry(f"{screen_width}x{screen_height}+0+0")
 
@@ -90,12 +94,12 @@ def show_image_tk(image_path, close_event):
         if event.char.isdigit():
             user_input = number_entry.get()
             number_entry.delete(0, tk.END)
-            number_entry.insert(0, user_input)
             number = int(user_input)
-            print(f"Rating: {number}")
             rating = number
-            print(rating)
             on_close()
+        else:
+            number_entry.get()
+            number_entry.delete(0, tk.END)
 
     root.bind('<Key>', on_submit)
 
@@ -140,7 +144,10 @@ async def main():
     connect_tracker()
     if tracker.connected:
         for image in images:
-            await process_image(image)
+            image_name = image.split("\\")[-1].split(".")[0]
+            if not db.has_field("users", username, image_name):
+                await process_image(image)
+        print('All picture is rated')
     else:
         print("No connection with tracker server")
 

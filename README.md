@@ -16,7 +16,7 @@
  ## Activate virtual environment
  Run the following command:
  ``` sh
-python -m venv venv_py36
+python3.6/python.exe -m venv venv_py36
 venv_py36\Scripts\activate
  ```
  With the virtual machine activated, install necessary dependencies:

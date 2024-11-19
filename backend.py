@@ -63,3 +63,11 @@ class Database:
             return doc.exists
         except Exception as e:
             return False
+
+    def has_field(self, collection_name, document_id, field_id):
+        try:
+            field_ref = self.db.collection(collection_name).document(document_id).field(field_id)
+            field = field_ref.get()
+            return field.exists
+        except Exception as e:
+            return False

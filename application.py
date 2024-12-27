@@ -9,7 +9,7 @@ import threading
 import random
 from backend import Database
 
-username = "boti"
+username = None
 images_path = "./parquet_images"
 images = None
 tracker = None
@@ -43,9 +43,16 @@ async def tracking_cursor_position():
 def parse_folder():
     global images
     images = glob.glob(os.path.join(images_path, '*.*'))
-    random.shuffle(images)
     if not images:
         print("The folder does not contains images")
+
+def read_username():
+    global username
+    print("Please give a unique username!")
+    username = input()
+    while (db.has_document("users", username)) :
+        print("This username is used by other user, please give another username")
+        username = input()
 
 def write_database():
     global images_path, size, rating, elapsed_time, coordinates, username
@@ -57,7 +64,9 @@ def write_database():
              "coordinates": coordinates}}
     coordinates = []
     rating = -1
-    db.add_data("picture", name.split('.')[0], field_pciture)
+    if (not db.has_document("picture", name.split(".")[0])):
+        db.add_data("picture", name.split('.')[0], field_pciture)
+
     if (db.has_document("users", username)):
         db.update_data("users", username, field_user)
     else:
@@ -143,6 +152,7 @@ async def main():
     parse_folder()
     connect_tracker()
     if tracker.connected:
+        read_username()
         for image in images:
             image_name = image.split("\\")[-1].split(".")[0]
             if not db.has_field("users", username, image_name):

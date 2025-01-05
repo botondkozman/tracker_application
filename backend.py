@@ -3,7 +3,6 @@ from firebase_admin import credentials, firestore
 
 class Database:
     def __init__(self, credential_path):
-        
         try:
             cred = credentials.Certificate(credential_path)
             firebase_admin.initialize_app(cred)
@@ -14,7 +13,6 @@ class Database:
             raise
 
     def add_data(self, collection_name, document_id, data):
-        
         try:
             doc_ref = self.db.collection(collection_name).document(document_id)
             doc_ref.set(data)
@@ -23,7 +21,6 @@ class Database:
             print(f"Failed to add data: {e}")
 
     def get_data(self, collection_name, document_id):
-        
         try:
             doc_ref = self.db.collection(collection_name).document(document_id)
             doc = doc_ref.get()
@@ -38,7 +35,6 @@ class Database:
             return None
         
     def get_data_collection(self, collection_name):
-
         try:
             collection_ref = self.db.collection(collection_name)
             docs = collection_ref.stream()
@@ -52,12 +48,26 @@ class Database:
             print(f"Failed to get collection data: {e}")
             return None
 
-
     def update_data(self, collection_name, document_id, new_data):
-        
         try:
             doc_ref = self.db.collection(collection_name).document(document_id)
             doc_ref.update(new_data)
             print(f"Document {document_id} updated.")
         except Exception as e:
             print(f"Failed to update data: {e}")
+
+    def has_document(self, collection_name, document_id):
+        try:
+            doc_ref = self.db.collection(collection_name).document(document_id)
+            doc = doc_ref.get()
+            return doc.exists
+        except Exception as e:
+            return False
+
+    def has_field(self, collection_name, document_id, field_id):
+        try:
+            field_ref = self.db.collection(collection_name).document(document_id).field(field_id)
+            field = field_ref.get()
+            return field.exists
+        except Exception as e:
+            return False

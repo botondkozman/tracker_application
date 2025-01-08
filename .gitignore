@@ -2,3 +2,4 @@ __pycache__
 .DS_Store
 venv_py36/
 credential/
+parquet_images/

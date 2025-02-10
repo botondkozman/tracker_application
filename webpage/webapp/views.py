@@ -48,9 +48,19 @@ class UploadImage(View):
             for chunk in file.chunks():
                 dest.write(chunk) 
 
-def upload(request):
-    template = loader.get_template('upload_file.html')
+def index(request):
+    template = loader.get_template('index.html')
     return HttpResponse(template.render())
+
+def ads(request):
+    template = loader.get_template('ads.html')
+    return HttpResponse(template.render())
+
+def generate(request):
+    if request.method == 'POST':
+        print(request.POST.get('slider_value'))
+
+    return render(request, 'generate.html')
 
 def upload_success(request):
     template = loader.get_template('upload_success.html')

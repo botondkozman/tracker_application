@@ -1,0 +1,19 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="{% static "styles.css" %}">
+</head>
+<body>
+  <h1>This is our ODIN project</h1>
+  <h2>Welcome on our website</h2>
+  <h3>Please select from the following options:</h3>
+  <a href="{% url 'ads' %}" class="button">Generate ads</a>
+  <a href="{% url 'upload' %}" class="button">Upload picture</a>
+  <a href="{% url 'generate' %}" class="button">Generate picture</a>
+</body>
+</html>

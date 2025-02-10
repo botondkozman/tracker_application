@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate picture</title>
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+  <script src="{% static 'js/slider.js' %}"></script>
+</head>
+<body>
+  <h1>Ads</h1>
+  <a href="{% url 'index' %}" class="button">Back</a>
+  <form method="post">
+    {% csrf_token %}
+    <label for="slider">Please choose a percent:</label>
+    <input type="range" id="slider" min="0" max="100" value="50" oninput="updateValue(this.value)">
+    <span id="slider-value">50</span>
+    <button type="submit">Set value</button>
+  </form>
+</body>
+</html>

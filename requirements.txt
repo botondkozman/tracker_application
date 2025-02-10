@@ -1,2 +1,4 @@
 pillow
 firebase-admin
+rembg
+onnxruntime

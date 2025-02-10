@@ -1,27 +1,26 @@
-import cv2
+from rembg import remove
+from PIL import Image
 import numpy as np
 
 def detect_object(path: str):
-    image = cv2.imread(path)
+    image = Image.open(path)
+    cropped_image = remove(image)
+    cropped_image.save('picture/ball_cropped.png')
+
+
+def convert_image_bw(image_path, output_path):
+    # Open image and convert to grayscale
+    img = Image.open(image_path).convert("L")
     
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Convert image to numpy array
+    img_array = np.array(img)
+    
+    # Apply transformation: nonzero pixels -> black (0), zero pixels -> white (255)
+    processed_array = np.where(img_array == 0, 255, 0).astype(np.uint8)
+    
+    # Convert back to image and save
+    processed_img = Image.fromarray(processed_array)
+    processed_img.save(output_path)
 
-    _, mask = cv2.threshold(gray_image, 240, 255, cv2.THRESH_BINARY_INV)
-
-
-    kernel = np.ones((3, 3), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
-
-    contour, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    new_mask = np.zeros_like(mask)
-    cv2.drawContours(new_mask, contour, -1, (255), thickness=cv2.FILLED)
-
-    cropped_object = cv2.bitwise_and(image, image, mask=new_mask)
-
-    cv2.imshow('Cropped image', cropped_object)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    return cropped_object
-
-detect_object('picture/test.png')
+detect_object('picture/ball.png')
+convert_image_bw('picture/ball_cropped.png', 'picture/ball2.png')
